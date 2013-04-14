@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+    <!--Data-resource-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:mysql.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+        <property name="targetDataSource">
+            <bean class="org.logicalcobwebs.proxool.ProxoolDataSource">
+                <property name="driver" value="${db.driver.class}"/>
+                <property name="driverUrl" value="${db.url}"/>
+                <property name="user" value="${db.username}"/>
+                <property name="password" value="${db.password}"/>
+                <property name="maximumConnectionCount"
+                          value="${proxool.maxConnCount}"/>
+                <property name="minimumConnectionCount"
+                          value="${proxool.minConnCount}"/>
+                <property name="statistics" value="${proxool.statistics}"/>
+                <property name="simultaneousBuildThrottle"
+                          value="${proxool.simultaneousBuildThrottle}"/>
+                <property name="trace" value="${proxool.trace}"/>
+            </bean>
+        </property>
+    </bean>
+    <!--JPA-->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="persistenceXmlLocation" value="jpa/persistence.xml"/>
+        <property name="persistenceUnitName" value="persistenceUnit"/>
+        <property name="persistenceProvider" ref="persistenceProvider"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <property name="jpaDialect" ref="jpaDialect"/>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="persistenceProvider" class="org.hibernate.ejb.HibernatePersistence"/>
+    <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="generateDdl" value="false"/>
+        <property name="database" value="HSQL"/>
+    </bean>
+    <bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+
+    <!--事物支持-->
+    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+    <!--添加注解支持-->
+    <tx:annotation-driven transaction-manager="txManager"/>
+    <!--模板开发-->
+    <bean id="jpaTemplate" class="org.springframework.orm.jpa.JpaTemplate">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+    <bean id="tempDao" class="com.shenghui.persistent.baseDao.impl.JpaBaseDao">
+        <property name="jpaTemplate" ref="jpaTemplate"/>
+    </bean>
+    <alias name="tempDao" alias="abstractDao"/>
+    <bean id="userDao" class="com.shenghui.persistent.dao.jdbc.UserDaoImpl" parent="abstractDao"/>
+
+</beans>
