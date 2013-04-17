@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+       http://www.springframework.org/schema/tx/spring-tx-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <!--Data-resource-->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -62,10 +63,13 @@
     <bean id="jpaTemplate" class="org.springframework.orm.jpa.JpaTemplate">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
-    <bean id="tempDao" class="com.shenghui.persistent.baseDao.impl.JpaBaseDao">
+    <bean id="tempDao" class="com.shenghui.persistent.baseDao.impl.JpaBaseDao" abstract="true">
         <property name="jpaTemplate" ref="jpaTemplate"/>
     </bean>
     <alias name="tempDao" alias="abstractDao"/>
     <bean id="userDao" class="com.shenghui.persistent.dao.jdbc.UserDaoImpl" parent="abstractDao"/>
 
+
+    <!--Spring完成spring的装备工作-->
+    <context:component-scan base-package="com.shenghui.form"/>
 </beans>

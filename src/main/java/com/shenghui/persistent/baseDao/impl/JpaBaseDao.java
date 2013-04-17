@@ -6,6 +6,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.jpa.JpaTemplate;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -17,32 +18,42 @@ import java.util.List;
  * Time: 下午12:18
  */
 
-public class JpaBaseDao<T>  implements BaseDao<T> {
+public abstract class JpaBaseDao<T> implements BaseDao<T> {
     JpaTemplate jpaTemplate;
 
     @Override
-    public T get(Serializable id) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public T get(Class<T> tClass, Serializable id) {
+        return (T) getJpaTemplate().find(tClass, id);
     }
 
     @Override
-    public List<T> getAll() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<T> getAll(Class<T> tClass) {
+        return (List<T>) getJpaTemplate().findByNamedQuery(tClass.getName());
+    }
+
+    @Override
+    public long getCount(Class<T> tClass) {
+        String name=tClass.getName();
+        name=name.substring(name.lastIndexOf('.')+1);
+        String countSql="select count("
+                +name.toLowerCase()+
+                ") from "+name+" "+name.toLowerCase();
+        return (Long)getJpaTemplate().find(countSql).get(0);
     }
 
     @Override
     public void save(Object o) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        getJpaTemplate().persist(o);
     }
 
     @Override
     public void remove(Object o) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        getJpaTemplate().remove(o);
     }
 
     @Override
     public void update(Object o) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        getJpaTemplate().refresh(o);
     }
 
     //getter and setter

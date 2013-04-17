@@ -19,40 +19,24 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRED)
 public class UserDaoImpl extends JpaBaseDao implements IUserDao {
     private static final String INSERT_SQL = "insert into test(name) values(:myName)";
-    private static final String COUNT_ALL_SQL = "select count(*) from test";
-
     @Override
-    public void save(UserModel model) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public int countAll() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Object get(Serializable id) {
-        return super.get(id);    //To change body of overridden methods use File | Settings | File Templates.
+    public UserModel get(Serializable id) {
+        return (UserModel) super.get(UserModel.class, id);
     }
 
     @Override
     public List getAll() {
-        return super.getAll();    //To change body of overridden methods use File | Settings | File Templates.
+        return (List) super.getAll(UserModel.class);
     }
 
     @Override
-    public void save(Object o) {
-        super.save(o);    //To change body of overridden methods use File | Settings | File Templates.
+    public void save(UserModel model) {
+        super.save(model);
     }
 
     @Override
-    public void remove(Object o) {
-        super.remove(o);    //To change body of overridden methods use File | Settings | File Templates.
+    public long countAll() {
+        return super.getCount(UserModel.class);
     }
 
-    @Override
-    public void update(Object o) {
-        super.update(o);    //To change body of overridden methods use File | Settings | File Templates.
-    }
 }

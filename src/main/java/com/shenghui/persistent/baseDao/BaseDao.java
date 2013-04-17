@@ -9,9 +9,11 @@ import java.util.List;
  * Time: 下午12:14
  */
 public interface BaseDao<T> {
-    T get(Serializable id);
-    List<T> getAll();
+    T get(Class<T> tClass, Serializable id);
+    List<T> getAll(Class<T> tClass);
+    long  getCount(Class<T> tClass);
     void save(Object o);
     void remove(Object o);
     void update(Object o);
+
 }
